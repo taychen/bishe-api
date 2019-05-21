@@ -1,1 +1,53 @@
+server:
+  port: 9090
+spring:
+  application:
+    name: bishe-api
+  #mysql config
+  datasource:
+    url: ${MYSQL_URL:jdbc:mysql://127.0.0.1:10086/bishe?characterEncoding=UTF-8&useSSL=false}
+    username: ${MYSQL_USER:root}
+    password: ${MYSQL_PWD:tai.juan1017}
+    driver-class-name: com.mysql.jdbc.Driver
+    tomcat:
+      initSQL: SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci
+    type: com.zaxxer.hikari.HikariDataSource
+    hikari:
+      connection-init-sql: SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci
 
+  servlet:
+    multipart:
+      maxFileSize: 10240000
+      maxRequestSize: 10240000
+  #jpa
+  jpa:
+    database: MYSQL
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+      naming:
+        implicit-strategy: org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL5InnoDBDialect
+  #mongo
+  data:
+    mongodb:
+      host: ${MONGO_HOST:127.0.0.1}
+      port: ${MONGO_PORT:28618}
+      database: ${MONGO_DB:bishe}
+      username: ${MONGO_USER:bishe}
+      password: ${MONGO_PWD:tai.juan1017}
+
+  # redis cache
+  redis:
+    database: 8
+    host: ${REDIS_HOST:127.0.0.1}
+    password: ${REDIS_PASS:tai.juan1017}
+    port: ${REDIS_PORT:6580}
+    jedis:
+      pool:
+        max-idle: 8
+        min-idle: 0
+        max-active: 8
+        max-wait: -1ms
