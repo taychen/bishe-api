@@ -51,28 +51,28 @@ public class UserController {
   public ResponseEntity login(
       @NotBlank(message = "userid is empty") String userid,
       @NotBlank(message = "password is empty") String password) {
-    log.info("userid:{}, password:{}", userid, password);
+    log.info("before decrypt userid:{}, password:{}", userid, password);
     userid = userid.replace(" ", "+");
     password = password.replace(" ", "+");
     initAesCbc();
-    String username = AesCbcUtils.getInstance().decrypt(userid);
-    String passwordAes = AesCbcUtils.getInstance().decrypt(password);
-    if (username == null || passwordAes == null) {
+    userid = AesCbcUtils.getInstance().decrypt(userid);
+    password = AesCbcUtils.getInstance().decrypt(password);
+    if (userid == null || password == null) {
       return ResponseEntity.ok(
           ResultUtils.getInstance().toJSONString(ResultEnums.USER_OR_PASS_ERROR));
     }
-    log.info("username:{}, passwordAes:{}", username, passwordAes);
-    SysUser user = userService.loadUserByUsername(username, passwordAes);
+      log.info("after decrypt userid:{}, password:{}", userid, password);
+    SysUser user = userService.loadUserByUserid(userid, password);
 
     if (user == null) {
       return ResponseEntity.ok(ResultUtils.getInstance().toJSONString(ResultEnums.USER_NOT_FOUND));
     }
 
-    String token = redisConfig.getAccessToken(username);
+    String token = redisConfig.getAccessToken(userid);
     if (StringUtils.isEmpty(token)) {
       long captchaExpires = JwtUtils.JWT_TTL / 1000;
       token = JwtUtils.getInstance().createJWT(JSONObject.toJSONString(user), JwtUtils.JWT_TTL);
-      redisConfig.setAccessToken(username, token, captchaExpires);
+      redisConfig.setAccessToken(userid, token, captchaExpires);
     }
 
     return ResponseEntity.ok(ResultUtils.getInstance().toJSONByToken(token));

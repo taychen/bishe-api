@@ -22,4 +22,13 @@ public interface UserRepository extends MongoRepository<SysUser,String> {
      * @return {@link Optional}
      */
     Optional<SysUser> findByUsername(String username);
+
+    /**
+     * 获取用户数据
+     *
+     * @param userid 用户编号
+     * @return {@link Optional}
+     */
+    Optional<SysUser> findByUserid(String userid);
+
 }

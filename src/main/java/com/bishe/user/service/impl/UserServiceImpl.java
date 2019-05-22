@@ -46,4 +46,19 @@ public class UserServiceImpl implements UserService {
 
         return user;
     }
+
+    @Override
+    public SysUser loadUserByUserid(String userid, String password) {
+        SysUser user = userRepository.findByUserid(userid).orElse(null);
+
+        if (user==null) {
+            throw new UserNotFoundException(ResultEnums.USER_NOT_FOUND);
+        }
+
+        if (!passwordEncoder.matches(password,user.getPassword())){
+            throw new ErrorException(ResultEnums.USER_OR_PASS_ERROR);
+        }
+
+        return user;
+    }
 }

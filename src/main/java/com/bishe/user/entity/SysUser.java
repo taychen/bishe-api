@@ -17,7 +17,9 @@ import java.time.Instant;
 public class SysUser {
 
     @Id
-    private String userId;
+    private String id;
+
+    private String userid;
 
     private String username;
 
