@@ -51,3 +51,7 @@ spring:
         min-idle: 0
         max-active: 8
         max-wait: -1ms
+
+aescbc:
+  key: ${AES_CBC_KEY:CtM434c38m0X353F}
+  iv: ${AES_CBC_IV:CtM434c38m0X353F}
