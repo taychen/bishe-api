@@ -1,7 +1,7 @@
 package com.bishe.user.repository;
 
 import com.bishe.user.entity.SysUser;
-import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
@@ -13,7 +13,7 @@ import java.util.Optional;
  * @date 2019/05/23
  */
 @Repository
-public interface UserRepository extends MongoRepository<SysUser,String> {
+public interface UserRepository extends PagingAndSortingRepository<SysUser,Long> {
 
     /**
      * 获取用户数据
@@ -26,9 +26,9 @@ public interface UserRepository extends MongoRepository<SysUser,String> {
     /**
      * 获取用户数据
      *
-     * @param userid 用户编号
+     * @param userId 用户编号
      * @return {@link Optional}
      */
-    Optional<SysUser> findByUserid(String userid);
+    Optional<SysUser> findByUserId(String userId);
 
 }

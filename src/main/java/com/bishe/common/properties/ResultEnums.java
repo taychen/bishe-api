@@ -46,6 +46,8 @@ public enum ResultEnums {
 
     USER_NOT_FOUND(104,"用户不存在"),
 
+    USER_EXIST(105,"用户已存在"),
+
     USER_NICK_NAME_EXIST(105, "该用户昵称已存在"),
 
     USER_MOBILE_EXIST(105, "该手机号已注册"),

@@ -10,6 +10,10 @@ import com.bishe.user.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
+import javax.persistence.RollbackException;
 
 /**
  * User Service implements
@@ -32,9 +36,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public SysUser loadUserByUsername(String username, String password) {
-
-        SysUser user = userRepository.findByUsername(username).orElse(null);
+    public SysUser loadUserByUserId(String userId, String password) {
+        SysUser user = userRepository.findByUserId(userId).orElse(null);
 
         if (user==null) {
             throw new UserNotFoundException(ResultEnums.USER_NOT_FOUND);
@@ -48,17 +51,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public SysUser loadUserByUserid(String userid, String password) {
-        SysUser user = userRepository.findByUserid(userid).orElse(null);
+    public SysUser findByUserId(String userId) {
+        return userRepository.findByUserId(userId).orElse(null);
+    }
 
-        if (user==null) {
-            throw new UserNotFoundException(ResultEnums.USER_NOT_FOUND);
-        }
-
-        if (!passwordEncoder.matches(password,user.getPassword())){
-            throw new ErrorException(ResultEnums.USER_OR_PASS_ERROR);
-        }
-
-        return user;
+    @Transactional(propagation = Propagation.REQUIRED,rollbackFor = RollbackException.class)
+    @Override
+    public SysUser save(SysUser user) {
+        return userRepository.save(user);
     }
 }

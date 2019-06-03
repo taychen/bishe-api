@@ -8,7 +8,7 @@ spring:
     url: ${MYSQL_URL:jdbc:mysql://127.0.0.1:10086/bishe?characterEncoding=UTF-8&useSSL=false}
     username: ${MYSQL_USER:root}
     password: ${MYSQL_PWD:tai.juan1017}
-    driver-class-name: com.mysql.jdbc.Driver
+    driver-class-name: com.mysql.cj.jdbc.Driver
     tomcat:
       initSQL: SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci
     type: com.zaxxer.hikari.HikariDataSource

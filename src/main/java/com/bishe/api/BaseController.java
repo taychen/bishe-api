@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.ConstraintViolationException;
-import java.net.SocketTimeoutException;
 import java.util.Arrays;
 
 /**
@@ -149,19 +148,5 @@ public class BaseController {
     public String tokenExceptionHandler(TokenException e, HttpServletResponse response) {
         response.setStatus(e.getCode());
         return ResultUtils.getInstance().toJSON(e.getCode(), e.getMessage());
-    }
-
-    /**
-     * 短信客户端异常处理
-     *
-     * @param e
-     * @return {@link String}
-     * @date 2018/07/17
-     */
-    @ExceptionHandler(SocketTimeoutException.class)
-    @ResponseBody
-    public String socketTimeoutExceptionHandler(SocketTimeoutException e) {
-        log.info("SocketTimeoutException:{}", e);
-        return ResultUtils.getInstance().toJSON(ResultEnums.SERVER_TIME_OUT.getCode(), e.getMessage());
     }
 }
