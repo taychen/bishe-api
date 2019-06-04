@@ -1,6 +1,9 @@
 server:
   port: 9090
 spring:
+#  aop:
+#    auto: true
+#    proxy-target-class: false
   application:
     name: bishe-api
   #mysql config
@@ -55,3 +58,6 @@ spring:
 aescbc:
   key: ${AES_CBC_KEY:CtM434c38m0X353F}
   iv: ${AES_CBC_IV:CtM434c38m0X353F}
+
+logging:
+  file: bishe.log

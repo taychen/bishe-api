@@ -1,6 +1,7 @@
 package com.bishe.api.v1;
 
 import com.alibaba.fastjson.JSONObject;
+import com.bishe.aspect.annotation.SysWebLog;
 import com.bishe.common.config.CustomRedisConfig;
 import com.bishe.common.properties.ResultEnums;
 import com.bishe.common.security.jwt.JwtUtils;
@@ -48,7 +49,8 @@ public class UserController {
   public UserController(UserService userService, CustomRedisConfig redisConfig) {
     this.userService = userService;
     this.redisConfig = redisConfig;
-    initAesCbc();
+    AesCbcUtils.getInstance().setSKey(key);
+    AesCbcUtils.getInstance().setIvParameter(iv);
   }
 
   /**
@@ -58,6 +60,7 @@ public class UserController {
    * @param password 用户密码
    * @return {@link ResponseEntity}
    */
+  @SysWebLog(value = "用户登录")  //这里添加了AOP的自定义注解
   @RequestMapping("/login")
   public ResponseEntity login(
       @NotBlank(message = "userId is empty") String userId,
@@ -94,6 +97,7 @@ public class UserController {
    * @param user 用户
    * @return {@link ResponseEntity}
    */
+  @SysWebLog(value = "用户注册")
   @PostMapping("/register")
   public ResponseEntity register(
       @Validated(value = ValidatedGroups.Default.class) @RequestBody SysUser user) {
@@ -104,11 +108,5 @@ public class UserController {
     }
     sysUser = userService.save(user);
     return ResponseEntity.ok(ResultUtils.getInstance().toJSONString(ResultEnums.SUCCESS, sysUser));
-  }
-
-  /** 初始化加密辅助类 */
-  private void initAesCbc() {
-    AesCbcUtils.getInstance().setSKey(key);
-    AesCbcUtils.getInstance().setIvParameter(iv);
   }
 }
