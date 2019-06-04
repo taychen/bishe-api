@@ -47,7 +47,9 @@ public class WebLogAspect {
    * @param joinPoint joinPoint
    */
   @Before("controllerLog()")
-  public void logBeforeController(JoinPoint joinPoint) {}
+  public void logBeforeController(JoinPoint joinPoint) {
+    log.info("方法的返回值:{}", joinPoint);
+  }
 
   /**
    * 处理完请求返回内容
@@ -65,6 +67,7 @@ public class WebLogAspect {
   @AfterThrowing("controllerLog()")
   public void customThrows(JoinPoint jp) {
     log.info("方法异常时执行.....");
+    log.info("方法的返回值:{}", jp);
   }
 
   /**
@@ -73,7 +76,9 @@ public class WebLogAspect {
    * @param jp jp
    */
   @After("controllerLog()")
-  public void after(JoinPoint jp) {}
+  public void after(JoinPoint jp) {
+    log.info("方法的返回值:{}", jp);
+  }
 
   /**
    * 环绕通知,环绕增强，相当于MethodInterceptor

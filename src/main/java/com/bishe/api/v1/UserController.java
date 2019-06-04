@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.bishe.aspect.annotation.SysWebLog;
 import com.bishe.common.config.CustomRedisConfig;
 import com.bishe.common.properties.ResultEnums;
+import com.bishe.common.security.crypto.password.PasswordEncoder;
 import com.bishe.common.security.jwt.JwtUtils;
 import com.bishe.common.util.AesCbcUtils;
 import com.bishe.common.util.ResultUtils;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Pattern;
 
 /**
  * User Api
@@ -45,12 +47,15 @@ public class UserController {
 
   private final CustomRedisConfig redisConfig;
 
+  private final PasswordEncoder passwordEncoder;
+
   @Autowired
-  public UserController(UserService userService, CustomRedisConfig redisConfig) {
+  public UserController(
+      UserService userService, CustomRedisConfig redisConfig, PasswordEncoder passwordEncoder) {
     this.userService = userService;
     this.redisConfig = redisConfig;
-    AesCbcUtils.getInstance().setSKey(key);
-    AesCbcUtils.getInstance().setIvParameter(iv);
+    this.passwordEncoder = passwordEncoder;
+
   }
 
   /**
@@ -60,17 +65,18 @@ public class UserController {
    * @param password 用户密码
    * @return {@link ResponseEntity}
    */
-  @SysWebLog(value = "用户登录")  //这里添加了AOP的自定义注解
+  @SysWebLog(value = "用户登录") // 这里添加了AOP的自定义注解
   @RequestMapping("/login")
   public ResponseEntity login(
-      @NotBlank(message = "userId is empty") String userId,
+      @NotBlank(message = "userId is empty")
+          @Pattern(regexp = "^[0-9]{6,10}$", message = "格式错误，用户编号为6-10位数字")
+          String userId,
       @NotBlank(message = "password is empty") String password) {
     log.info("before decrypt userId:{}, password:{}", userId, password);
-    userId = userId.replace(" ", "+");
     password = password.replace(" ", "+");
-    userId = AesCbcUtils.getInstance().decrypt(userId);
+    this.initAecCbc();
     password = AesCbcUtils.getInstance().decrypt(password);
-    if (userId == null || password == null) {
+    if (password == null) {
       return ResponseEntity.ok(
           ResultUtils.getInstance().toJSONString(ResultEnums.USER_OR_PASS_ERROR));
     }
@@ -102,11 +108,25 @@ public class UserController {
   public ResponseEntity register(
       @Validated(value = ValidatedGroups.Default.class) @RequestBody SysUser user) {
     String userId = user.getUserId();
+    String password = user.getPassword();
+    this.initAecCbc();
+    log.info("before decrypt userId:{}, password:{}", userId, password);
+    String passwordAes = AesCbcUtils.getInstance().decrypt(password);
+    if (passwordAes == null) {
+      return ResponseEntity.ok(ResultUtils.getInstance().toJSON(ResultEnums.PARAM_PASS_NO_ENCRYPT));
+    }
+    log.info("after decrypt userId:{}, password:{}", userId, passwordAes);
     SysUser sysUser = userService.findByUserId(userId);
     if (sysUser != null) {
       return ResponseEntity.ok(ResultUtils.getInstance().toJSONString(ResultEnums.USER_EXIST));
     }
+    user.setPassword(passwordEncoder.encode(passwordAes));
     sysUser = userService.save(user);
     return ResponseEntity.ok(ResultUtils.getInstance().toJSONString(ResultEnums.SUCCESS, sysUser));
+  }
+
+  private void initAecCbc(){
+    AesCbcUtils.getInstance().setSKey(key);
+    AesCbcUtils.getInstance().setIvParameter(iv);
   }
 }

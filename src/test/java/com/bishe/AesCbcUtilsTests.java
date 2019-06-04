@@ -11,8 +11,8 @@ public class AesCbcUtilsTests {
     AesCbcUtils.getInstance().setSKey("CtM434c38m0X353F");
     AesCbcUtils.getInstance().setIvParameter("CtM434c38m0X353F");
     log.info(
-        "username:{}\npassword:{}",
-        AesCbcUtils.getInstance().encrypt("18588206541"),
+        "\nusername:{}\npassword:{}",
+        AesCbcUtils.getInstance().encrypt("1200310508"),
         AesCbcUtils.getInstance().encrypt("123456"));
   }
 }

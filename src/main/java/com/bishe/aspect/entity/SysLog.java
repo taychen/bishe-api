@@ -32,9 +32,15 @@ public class SysLog implements Serializable {
   private String method;
 
   /** 参数 */
+  @Lob
+  @Basic(fetch = FetchType.LAZY)
+  @Column(columnDefinition = "LONGTEXT")
   private String params;
 
   /** 返回结果 */
+  @Lob
+  @Basic(fetch = FetchType.LAZY)
+  @Column(columnDefinition = "LONGTEXT")
   private String response;
 
   /** ip地址 */
