@@ -31,4 +31,5 @@ HELP.md
 
 ### MacOS ###
 .DS_Store
-bishe.log
+*.log
+*.gz
