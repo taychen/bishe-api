@@ -18,4 +18,6 @@ public interface AuthorityService {
      * @return {@link SysRole}
      */
     SysAuthority addAuthority(SysAuthority sysAuthority);
+
+
 }

@@ -1,14 +1,13 @@
 package com.bishe.user.entity;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import com.bishe.common.base.BaseEntity;
-import com.bishe.common.validated.ValidatedGroups;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.hibernate.annotations.BatchSize;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Pattern;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -29,35 +28,17 @@ public class SysUser extends BaseEntity {
   private long id;
 
   /** 用户编号 */
-  @NotBlank(
-      message = "用户编号不能为空",
-      groups = {ValidatedGroups.Default.class})
-  @Pattern(
-      regexp = "^[0-9]{6,10}$",
-      message = "格式错误，用户编号为6-10位数字",
-      groups = {ValidatedGroups.Default.class})
   private String userId;
 
   /** 用户姓名 */
-  @NotBlank(
-      message = "真实姓名不能为空",
-      groups = {ValidatedGroups.Default.class})
   private String username;
 
   /** 用户密码 */
-  @NotBlank(
-      message = "用户密码不能为空",
-      groups = {ValidatedGroups.Default.class})
+  @JSONField(serialize = false)
+  @JsonIgnore
   private String password;
 
   /** 用户手机号 */
-  @NotBlank(
-      message = "用户手机号不能为空",
-      groups = {ValidatedGroups.Default.class})
-  @Pattern(
-      regexp = "^([1][3-9][0-9]{9})$",
-      message = "格式错误，请输入正确的手机号",
-      groups = {ValidatedGroups.Default.class})
   private String mobileCode;
 
   /** 学院编号 */

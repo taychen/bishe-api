@@ -3,12 +3,14 @@ package com.bishe.common.security.jwt;
 import com.alibaba.fastjson.JSONObject;
 import com.bishe.common.exception.TokenException;
 import com.bishe.common.properties.ResultEnums;
+import com.bishe.user.entity.SysUser;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tomcat.util.codec.binary.Base64;
+import org.springframework.util.StringUtils;
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
@@ -138,14 +140,20 @@ public class JwtUtils {
      * @param request 请求
      * @return {@link UserInfoEntity}
      */
-//    public UserInfoEntity getUserInfo(HttpServletRequest request){
-//        String accessToken = request.getHeader("Authorization").split(" ")[1];
-//        Claims claims = parseJWT(accessToken);
-//        if (claims!=null) {
-//            UserInfoEntity userInfo = JSONObject.parseObject(claims.getSubject(),UserInfoEntity.class);
-//            return userInfo;
-//        }else {
-//            return null;
-//        }
-//    }
+    public SysUser getUserInfo(HttpServletRequest request){
+        String accessToken = request.getHeader("Authorization");
+        if (!StringUtils.isEmpty(accessToken)){
+            accessToken = accessToken.split(" ")[1];
+            Claims claims = parseJWT(accessToken);
+            if (claims!=null) {
+                SysUser userInfo = JSONObject.parseObject(claims.getSubject(),SysUser.class);
+                return userInfo;
+            }else {
+                return null;
+            }
+        }else {
+            return null;
+        }
+
+    }
 }

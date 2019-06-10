@@ -13,6 +13,6 @@ public class AesCbcUtilsTests {
     log.info(
         "\nusername:{}\npassword:{}",
         AesCbcUtils.getInstance().encrypt("1200310508"),
-        AesCbcUtils.getInstance().encrypt("123456"));
+        AesCbcUtils.getInstance().encrypt("superadmin"));
   }
 }
