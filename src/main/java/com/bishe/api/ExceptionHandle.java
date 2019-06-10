@@ -33,7 +33,6 @@ public class ExceptionHandle {
      * @param e e
      * @return {@link String}
      */
-    @SysWebLog("异常处理")
     @ExceptionHandler(value = Exception.class)
     @ResponseBody
     public String exceptionGet(Exception e){

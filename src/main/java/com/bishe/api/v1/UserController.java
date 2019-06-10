@@ -9,7 +9,11 @@ import com.bishe.common.security.jwt.JwtUtils;
 import com.bishe.common.util.AesCbcUtils;
 import com.bishe.common.util.ResultUtils;
 import com.bishe.common.validated.ValidatedGroups;
+import com.bishe.user.entity.SysAuthority;
+import com.bishe.user.entity.SysRole;
 import com.bishe.user.entity.SysUser;
+import com.bishe.user.service.AuthorityService;
+import com.bishe.user.service.RoleService;
 import com.bishe.user.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +28,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
 
 /**
  * User Api
@@ -45,17 +52,66 @@ public class UserController {
 
   private final UserService userService;
 
+  private final RoleService roleService;
+
+  private final AuthorityService authorityService;
+
   private final CustomRedisConfig redisConfig;
 
   private final PasswordEncoder passwordEncoder;
 
   @Autowired
   public UserController(
-      UserService userService, CustomRedisConfig redisConfig, PasswordEncoder passwordEncoder) {
+          UserService userService, RoleService roleService, AuthorityService authorityService, CustomRedisConfig redisConfig, PasswordEncoder passwordEncoder) {
     this.userService = userService;
+    this.roleService = roleService;
+    this.authorityService = authorityService;
     this.redisConfig = redisConfig;
     this.passwordEncoder = passwordEncoder;
 
+  }
+
+  /**
+   * 初始化超级管理员
+   *
+   * @return {@link ResponseEntity}
+   */
+  @SysWebLog("初始化超级管理员")
+  @RequestMapping("/init")
+  public ResponseEntity init(){
+    SysAuthority addAuth = new SysAuthority();
+    addAuth.setName("添加");
+    addAuth.setValue("Add");
+    addAuth.setDescription("添加数据");
+    addAuth = authorityService.addAuthority(addAuth);
+    SysAuthority modifyAuth = new SysAuthority();
+    modifyAuth.setName("修改");
+    modifyAuth.setValue("Modify");
+    modifyAuth.setDescription("修改数据");
+    modifyAuth = authorityService.addAuthority(modifyAuth);
+    SysAuthority searchAuth = new SysAuthority();
+    searchAuth.setName("查询");
+    searchAuth.setValue("Search");
+    searchAuth.setDescription("查询数据");
+    searchAuth = authorityService.addAuthority(searchAuth);
+    SysAuthority deleteAuth = new SysAuthority();
+    deleteAuth.setName("删除");
+    deleteAuth.setValue("Delete");
+    deleteAuth.setDescription("删除数据");
+    deleteAuth = authorityService.addAuthority(deleteAuth);
+    SysRole role = new SysRole();
+    role.setName("超级管理员");
+    role.setValue("ROLE_SUPER_ADMIN");
+    role.setDescription("超级管理员，拥有所有权限");
+    role.setAuthorities(new HashSet<>(Arrays.asList(addAuth, modifyAuth, searchAuth, deleteAuth)));
+    roleService.addRole(role);
+    SysUser user = new SysUser();
+    user.setUsername("超级管理员");
+    user.setUserId("1000000");
+    user.setPassword(passwordEncoder.encode("superadmin"));
+    user.setRoles(new HashSet<>(Collections.singletonList(role)));
+    user = userService.save(user);
+    return ResponseEntity.ok(ResultUtils.getInstance().toJSONString(ResultEnums.SUCCESS,user));
   }
 
   /**

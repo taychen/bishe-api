@@ -64,7 +64,9 @@ public enum ResultEnums {
 
     ROLE_NOT_FOUND(104, "角色不存在，请确认后再进行操作"),
 
-    ROLES_NOT_FOUND(104, "查询不到任何角色信息");
+    ROLES_NOT_FOUND(104, "查询不到任何角色信息"),
+
+    AUTHORITY_EXISTED(105, "权限已存在，请勿重复添加"),;
 
     private int code;
 

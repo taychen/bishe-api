@@ -26,6 +26,7 @@ public class WebSecurityConfig implements WebMvcConfigurer {
         //  排除配置--对下面的URL不进行拦截
         registration.excludePathPatterns("/**/user/login");
         registration.excludePathPatterns("/**/user/register");
+        registration.excludePathPatterns("/**/user/init");
         registration.excludePathPatterns("/swagger-ui.html");
 
         //  配置拦截

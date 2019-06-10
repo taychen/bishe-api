@@ -4,10 +4,13 @@ import com.bishe.common.base.BaseEntity;
 import com.bishe.common.validated.ValidatedGroups;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.hibernate.annotations.BatchSize;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * User Entity
@@ -66,6 +69,11 @@ public class SysUser extends BaseEntity {
   /** 专业 */
   private String major;
 
-  /** 角色ID */
-  private String roleId;
+  /**
+   * 角色
+   */
+  @ManyToMany(targetEntity = SysRole.class, fetch = FetchType.EAGER)
+  @BatchSize(size = 20)
+  private Set<SysRole> roles = new HashSet<>();
+
 }
