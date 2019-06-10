@@ -65,7 +65,7 @@ public class UserController {
    * @param password 用户密码
    * @return {@link ResponseEntity}
    */
-  @SysWebLog(value = "用户登录") // 这里添加了AOP的自定义注解
+  @SysWebLog(value = "用户登录")
   @RequestMapping("/login")
   public ResponseEntity login(
       @NotBlank(message = "userId is empty")

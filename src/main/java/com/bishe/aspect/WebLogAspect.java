@@ -2,6 +2,7 @@ package com.bishe.aspect;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.bishe.api.ExceptionHandle;
 import com.bishe.aspect.annotation.SysWebLog;
 import com.bishe.aspect.entity.SysLog;
 import com.bishe.aspect.service.SysLogService;
@@ -32,9 +33,12 @@ public class WebLogAspect {
 
   private final SysLogService sysLogService;
 
+  private final ExceptionHandle exceptionHandle;
+
   @Autowired
-  public WebLogAspect(SysLogService sysLogService) {
+  public WebLogAspect(SysLogService sysLogService, ExceptionHandle exceptionHandle) {
     this.sysLogService = sysLogService;
+    this.exceptionHandle = exceptionHandle;
   }
 
   /** 切入点描述 这个是controller包的切入点 */
@@ -67,7 +71,7 @@ public class WebLogAspect {
   @AfterThrowing("controllerLog()")
   public void customThrows(JoinPoint jp) {
     log.info("方法异常时执行.....");
-    log.info("方法的返回值:{}", jp);
+    log.info("方法异常的返回值:{}", jp);
   }
 
   /**
@@ -87,60 +91,69 @@ public class WebLogAspect {
    * @return {@link Object}
    */
   @Around("controllerLog()")
-  public Object around(ProceedingJoinPoint pjp) {
+  public Object around(ProceedingJoinPoint pjp) throws Throwable {
+    Object o;
+    // 保存日志
+    SysLog sysLog = new SysLog();
     try {
-      // 处理完请求，返回内容
-      log.info("方法的返回值:{}", pjp);
-      // 保存日志
-      SysLog sysLog = new SysLog();
-      // 从切面织入点处通过反射机制获取织入点处的方法
-      MethodSignature signature = (MethodSignature) pjp.getSignature();
-      // 获取切入点所在的方法
-      Method method = signature.getMethod();
-
-      // 获取操作
-      SysWebLog myLog = method.getAnnotation(SysWebLog.class);
-      if (myLog != null) {
-        String value = myLog.value();
-        // 保存获取的操作
-        sysLog.setOperation(value);
-      }
-
-      // 获取请求的类名
-      String className = pjp.getTarget().getClass().getName();
-      // 获取请求的方法名
-      String methodName = method.getName();
-      sysLog.setMethod(className + "." + methodName);
-
-      // 请求的参数
-      Object[] args = pjp.getArgs();
-      // 将参数所在的数组转换成json
-      String params = JSON.toJSONString(args);
-      sysLog.setParams(params);
-
-      //  获取RequestAttributes
-      RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
-      //  从获取RequestAttributes中获取HttpServletRequest的信息
-      assert requestAttributes != null;
-      HttpServletRequest request =
-          (HttpServletRequest)
-              requestAttributes.resolveReference(RequestAttributes.REFERENCE_REQUEST);
-
-      String ip = IpUtil.getIpAddr(request);
-      sysLog.setIp(ip);
-
-      Object o = pjp.proceed();
+      o = pjp.proceed();
+      this.getLog(sysLog, pjp);
+      log.info("响应结果：{}", o);
       JSONObject result = JSONObject.parseObject(JSON.toJSONString(o));
       log.info("请求结果：{}", result);
       sysLog.setResponse(result.getString("body"));
 
       // 调用service保存SysLog实体类到数据库
       sysLogService.save(sysLog);
-
       return o;
-    } catch (Throwable e) {
+    } catch (Exception e) {
       e.printStackTrace();
-      return null;
+      o = exceptionHandle.exceptionGet(e);
+      this.getLog(sysLog, pjp);
+      sysLog.setResponse(o.toString());
+      // 调用service保存SysLog实体类到数据库
+      sysLogService.save(sysLog);
+      return pjp.proceed();
     }
+  }
+
+  private void getLog(SysLog sysLog, JoinPoint pjp){
+    // 处理完请求，返回内容
+    log.info("方法的返回值:{}", pjp);
+    // 从切面织入点处通过反射机制获取织入点处的方法
+    MethodSignature signature = (MethodSignature) pjp.getSignature();
+    // 获取切入点所在的方法
+    Method method = signature.getMethod();
+
+    // 获取操作
+    SysWebLog myLog = method.getAnnotation(SysWebLog.class);
+    if (myLog != null) {
+      String value = myLog.value();
+      // 保存获取的操作
+      sysLog.setOperation(value);
+    }
+
+    // 获取请求的类名
+    String className = pjp.getTarget().getClass().getName();
+    // 获取请求的方法名
+    String methodName = method.getName();
+    sysLog.setMethod(className + "." + methodName);
+
+    // 请求的参数
+    Object[] args = pjp.getArgs();
+    // 将参数所在的数组转换成json
+    String params = JSON.toJSONString(args);
+    sysLog.setParams(params);
+
+    //  获取RequestAttributes
+    RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
+    //  从获取RequestAttributes中获取HttpServletRequest的信息
+    assert requestAttributes != null;
+    HttpServletRequest request =
+            (HttpServletRequest)
+                    requestAttributes.resolveReference(RequestAttributes.REFERENCE_REQUEST);
+
+    String ip = IpUtil.getIpAddr(request);
+    sysLog.setIp(ip);
   }
 }

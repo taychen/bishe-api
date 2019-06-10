@@ -1,5 +1,6 @@
 package com.bishe.common.base;
 
+import com.bishe.common.util.DateTimeUtils;
 import lombok.Data;
 
 import javax.persistence.Column;
@@ -7,7 +8,7 @@ import javax.persistence.MappedSuperclass;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 import java.io.Serializable;
-import java.time.Instant;
+import java.time.LocalDateTime;
 
 /**
  * 时间字段基类
@@ -29,11 +30,11 @@ public class BaseEntity implements Serializable {
 
   @PrePersist
   public void prePersist() {
-    createAt = updateAt = String.valueOf(Instant.now().toEpochMilli() / 1000);
+    createAt = updateAt = DateTimeUtils.getInstance().format(LocalDateTime.now());
   }
 
   @PreUpdate
   public void preUpdate() {
-    updateAt = String.valueOf(Instant.now().toEpochMilli() / 1000);
+    updateAt = DateTimeUtils.getInstance().format(LocalDateTime.now());
   }
 }
